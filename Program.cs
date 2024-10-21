@@ -6,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Dynatrace.OneAgent.Sdk.Api; 
 
+var builder = WebApplication.CreateBuilder(args);
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddLogging(loggingBuilder =>
@@ -16,9 +18,7 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 
 var app = builder.Build();
-var builder = WebApplication.CreateBuilder(args);
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation("Application started.");
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -26,6 +26,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+
+
+//new part
+// Create a logger
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Application started.");
+
 app.Use(async (context, next) =>
 {
     logger.LogInformation("Incoming Request: {method} {url}", context.Request.Method, context.Request.Path);
@@ -34,14 +41,22 @@ app.Use(async (context, next) =>
 
     logger.LogInformation("Outgoing Response: {statusCode}", context.Response.StatusCode);
 });
+
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseAuthorization();
+
 app.MapRazorPages();
+
 app.UseEndpoints(endpoints =>
+
 {
     endpoints.MapRazorPages();
 });
+
 
 app.Run();
